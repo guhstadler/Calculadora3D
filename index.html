@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calculadora de Custo - Impressão 3D</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Roboto', sans-serif; 
+      background: #121212; 
+      color: #e0e0e0; 
+      padding: 20px;
+      margin: 0;
+      line-height: 1.6;
+    }
+    .page-header { 
+      max-width: 600px;
+      margin: 15px auto 10px auto; 
+      position: relative;
+      display: flex;
+      justify-content: center; 
+      align-items: center; 
+      min-height: 60px; 
+    }
+    /* .header-gear-container removido daqui, pois o botão foi movido */
+    .title-container {
+        text-align: center;
+    }
+    .title-main {
+      color: #39FF14; 
+      text-transform: uppercase;
+      font-size: 2.2em; 
+      font-family: 'Orbitron', sans-serif; 
+      letter-spacing: 2px;
+      display: block; 
+      line-height: 1.1;
+    }
+    .title-subtitle {
+      color: #39FF14; 
+      text-transform: uppercase;
+      font-size: 1.4em; 
+      font-family: 'Orbitron', sans-serif;
+      letter-spacing: 1px;
+      display: block; 
+      margin-top: 5px; 
+    }
+    .container { /* Quadro principal da calculadora */
+      max-width: 600px; 
+      margin: 0 auto 30px auto; 
+      background: #1e1e1e; 
+      padding: 30px; /* Padding interno do card */
+      border-radius: 10px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3); 
+      position: relative; /* Essencial para posicionar o botão de engrenagem dentro dele */
+    }
+    .card-gear-container { /* Novo container para o botão de engrenagem DENTRO do card */
+        position: absolute;
+        top: 20px; /* Ajustado para o padding do container */
+        right: 20px; /* Ajustado para o padding do container */
+        z-index: 10; 
+    }
+
+    input, select {
+      width: 100%;
+      padding: 12px 15px;
+      margin: 8px 0 18px 0; 
+      box-sizing: border-box; 
+      border-radius: 6px;
+      border: 1px solid #333; 
+      background: #2c2c2c; 
+      color: #e0e0e0; 
+      font-size: 1rem;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+    input:focus, select:focus {
+        border-color: #39FF14; 
+        box-shadow: 0 0 0 0.2rem rgba(57, 255, 20, 0.25); 
+        outline: none;
+    }
+    input::placeholder {
+      color: #777;
+    }
+    .time-inputs-container {
+        display: flex;
+        gap: 10px; 
+    }
+    .time-inputs-container > div {
+        flex-grow: 1; 
+    }
+    button { 
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 6px;
+      font-weight: bold;
+      cursor: pointer;
+      font-size: 1.05rem;
+      transition: background-color 0.2s ease;
+    }
+    #calcularBtn { 
+      background: #FF0000; 
+      color: #FFFFFF; 
+      margin-top: 20px;
+      text-transform: uppercase; 
+    }
+    #calcularBtn:hover {
+      background: #CC0000; 
+    }
+    .result {
+      margin-top: 30px;
+      font-weight: normal; 
+      background: #2a2a2a; 
+      padding: 15px 20px;
+      border-radius: 8px;
+      border: 1px solid #FF4136; 
+      line-height: 1.7; 
+    }
+    .result-line {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline; 
+        padding: 4px 0;
+        color: #FF4136; 
+    }
+    .result-label {
+        text-align: left;
+        margin-right: 10px; 
+        flex-shrink: 0; 
+    }
+    .result-label.full-width-label { 
+        width: 100%;
+        text-align: left;
+        margin-right: 0;
+    }
+    .value-area { 
+        text-align: right;
+        flex-grow: 1; 
+    }
+    .result-prefix {
+        margin-right: 0.25em; 
+    }
+    .result-main-value {
+        font-weight: bold; 
+        display: inline; 
+    }
+   
+    .result-line.separator {
+        border-top: 1px solid #3f3f3f;
+        margin: 8px 0;
+        padding-top: 8px;
+        height: 1px; 
+        color: transparent; 
+    }
+    .result-line.warning .value-area,
+    .result-line.warning .result-label { 
+        color: #fab387 !important; 
+        font-weight: bold;
+    }
+     .result-line.error .result-label,
+     .result-line.error .value-area { 
+        color: #FF4136 !important;
+        font-weight: bold;
+     }
+     .result-line.bold-line .result-label,
+     .result-line.bold-line .value-area,
+     .result-line.bold-line .result-prefix,
+     .result-line.bold-line .result-main-value { 
+        font-weight: bold;
+     }
+
+    label {
+      display: block;
+      margin-top: 12px; 
+      font-weight: 600; 
+      color: #b0b0b0; 
+      margin-bottom: 4px; 
+    }
+    .configuracoes { 
+      padding: 25px;
+      background: #2c2c2c; 
+      border-radius: 8px;
+      border: 1px solid #3f3f3f;
+      text-align: left; 
+      margin-top: 0; /* Será o primeiro elemento de conteúdo visível no card */
+      margin-bottom: 25px; 
+    }
+    .configuracoes h2 {
+      text-align: center;
+      color: #39FF14; 
+      margin-top: 0;
+      margin-bottom: 25px;
+      font-size: 1.3em;
+    }
+    .hidden {
+      display: none !important; 
+    }
+    .toggle-config-button { 
+      background: #4a4a4a; 
+      color: #e0e0e0;
+      padding: 8px 10px; 
+      font-size: 1.2rem; 
+      width: auto; 
+      line-height: 1; 
+    }
+    .toggle-config-button:hover {
+      background: #5c5c5c; 
+    }
+  </style>
+</head>
+<body>
+  <div class="page-header">
+    <div class="title-container">
+      <span class="title-main">CALCULADORA</span>
+      <span class="title-subtitle">IMPRESSÕES 3D</span>
+    </div>
+    <!-- Botão de engrenagem foi movido para dentro do .container -->
+  </div>
+
+  <div class="container"> 
+    <div class="card-gear-container"> <!-- Botão de engrenagem agora aqui -->
+        <button id="toggleConfig" class="toggle-config-button">⚙️</button>
+    </div>
+
+    <!-- Seção de Parâmetros permanece como o primeiro bloco de conteúdo visível quando ativado -->
+    <div id="configSection" class="configuracoes hidden"> 
+        <h2>Parâmetros</h2>
+        
+        <label for="porcentagemLucro">% de Lucro</label>
+        <input type="number" id="porcentagemLucro" placeholder="Ex: 30" step="1" value="100">
+
+        <label for="precoVenda">Preço de Venda (opcional)</label>
+        <input type="number" id="precoVenda" placeholder="Ex: 50" step="1">
+        
+        <hr style="border-color: #3f3f3f; margin: 25px 0;">
+
+        <label for="consumoImpressora">Consumo da Impressora (watts)</label>
+        <input type="number" id="consumoImpressora" placeholder="Ex: 120" step="1" value="150">
+
+        <label for="tarifaEnergia">Tarifa de Energia (R$/kWh)</label>
+        <input type="number" id="tarifaEnergia" placeholder="Ex: 0.9" step="0.01" value="0.65">
+    </div>
+
+    <form id="calculatorForm">
+        <label for="precoFilamento">Custo do Filamento (Kg)</label> 
+        <input type="number" id="precoFilamento" placeholder="Ex: 100" step="1">
+
+        <label for="materialUtilizado">Material Utilizado (g)</label>
+        <input type="number" id="materialUtilizado" placeholder="Ex: 150" step="1">
+
+        <label>Tempo de Impressão</label>
+        <div class="time-inputs-container">
+            <div>
+                <label for="duracaoHoras" style="font-size: 0.9em; color: #999;">Horas</label>
+                <input type="number" id="duracaoHoras" placeholder="Ex: 5" step="1" min="0">
+            </div>
+            <div>
+                <label for="duracaoMinutos" style="font-size: 0.9em; color: #999;">Minutos</label>
+                <input type="number" id="duracaoMinutos" placeholder="Ex: 45" step="1" min="0" max="59">
+            </div>
+        </div>
+        <button type="submit" id="calcularBtn">TOTAL</button>
+    </form>
+    
+    <div class="result hidden" id="resultado"> 
+        <!-- Os resultados serão inseridos aqui pelo JavaScript -->
+    </div>
+
+  </div>
+
+  <script>
+    function formatarMoeda(valor) { 
+        let strValor = valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        const regex = /(R\$\s*-?)(\d)(,\d{2})/; 
+        if (regex.test(strValor)) {
+            strValor = strValor.replace(regex, '$10$2$3'); 
+        }
+        return strValor;
+    }
+
+    function createResultLine(label, mainValue, prefix = '', type = '') {
+        let lineClass = 'result-line';
+        if (type === 'error') lineClass += ' error';
+        if (type === 'warning') lineClass += ' warning';
+        if (type === 'bold') lineClass += ' bold-line'; 
+        
+        if (type === 'separator') {
+            return `<div class="result-line separator"></div>`; 
+        }
+
+        let prefixHtml = prefix ? `<span class="result-prefix">${prefix}</span>` : '';
+        let mainValueHtml;
+
+        if (type === 'error' || type === 'warning') {
+            mainValueHtml = mainValue; 
+        } else {
+            mainValueHtml = `<span class="result-main-value">${mainValue}</span>`;
+        }
+        
+        if (mainValue === '' && prefix === '' && (type !== 'error' && type !== 'warning') && label !== '') {
+             return `<div class="${lineClass}"><span class="result-label full-width-label">${label}</span></div>`;
+        }
+
+        return `
+            <div class="${lineClass}">
+                <span class="result-label">${label}</span>
+                <span class="value-area">
+                    ${prefixHtml}
+                    ${mainValueHtml}
+                </span>
+            </div>
+        `;
+    }
+    
+    const resultadoDiv = document.getElementById('resultado'); 
+
+    function exibirErro(mensagem) {
+        resultadoDiv.innerHTML = createResultLine('Erro:', mensagem, '', 'error');
+        resultadoDiv.classList.remove('hidden'); 
+    }
+
+    function calcular() {
+      const materialUtilizado = parseFloat(document.getElementById('materialUtilizado').value);
+      const duracaoHorasInput = parseFloat(document.getElementById('duracaoHoras').value) || 0; 
+      const duracaoMinutosInput = parseFloat(document.getElementById('duracaoMinutos').value) || 0; 
+      const precoFilamento = parseFloat(document.getElementById('precoFilamento').value);
+      const porcentagemLucro = parseFloat(document.getElementById('porcentagemLucro').value);
+      const precoVendaManual = parseFloat(document.getElementById('precoVenda').value);
+      const consumoImpressora = parseFloat(document.getElementById('consumoImpressora').value);
+      const tarifaEnergia = parseFloat(document.getElementById('tarifaEnergia').value);
+
+      if (duracaoMinutosInput < 0 || duracaoMinutosInput > 59) {
+        exibirErro("Minutos devem estar entre 0 e 59.");
+        return;
+      }
+      if (duracaoHorasInput < 0) {
+        exibirErro("Horas não podem ser negativas.");
+        return;
+      }
+      
+      const duracaoTotalEmHoras = duracaoHorasInput + (duracaoMinutosInput / 60);
+
+      if (isNaN(materialUtilizado) || materialUtilizado <= 0) {
+        exibirErro("Material utilizado deve ser um número positivo.");
+        return;
+      }
+       if (isNaN(precoFilamento) || precoFilamento <= 0) { 
+        exibirErro("Custo do Filamento deve ser um número positivo.");
+        return;
+      }
+      if (duracaoTotalEmHoras === 0 && (materialUtilizado > 0 && precoFilamento > 0) && (consumoImpressora > 0 && tarifaEnergia > 0 ) ) {
+      } else if (duracaoTotalEmHoras < 0) { 
+           exibirErro("Tempo de impressão não pode ser negativo.");
+           return;
+      }
+
+      if (isNaN(porcentagemLucro) || porcentagemLucro < 0) {
+        exibirErro("Porcentagem de lucro deve ser um número não negativo (verifique os parâmetros).");
+        return;
+      }
+      if (isNaN(consumoImpressora) || consumoImpressora <= 0) {
+        exibirErro("Consumo da impressora deve ser um número positivo (verifique os parâmetros).");
+        return;
+      }
+      if (isNaN(tarifaEnergia) || tarifaEnergia <= 0) {
+        exibirErro("Tarifa de energia deve ser um número positivo (verifique os parâmetros).");
+        return;
+      }
+
+      const custoFilamento = (materialUtilizado / 1000) * precoFilamento;
+      const consumoEnergiaKWh = (consumoImpressora / 1000) * duracaoTotalEmHoras;
+      const custoEnergia = consumoEnergiaKWh * tarifaEnergia;
+      const custoTotal = custoFilamento + custoEnergia;
+      const precoSugerido = custoTotal * (1 + (porcentagemLucro / 100));
+      let lucroEstimado = precoSugerido - custoTotal; 
+
+      let htmlResultado = '';
+      htmlResultado += createResultLine('Custo com filamento:', formatarMoeda(custoFilamento));
+      
+      const kwhPrefixEnergia = `${consumoEnergiaKWh.toFixed(2)} kWh | `; 
+      htmlResultado += createResultLine('Custo com energia:', formatarMoeda(custoEnergia), kwhPrefixEnergia); 
+      
+      htmlResultado += createResultLine('Custo total da peça:', formatarMoeda(custoTotal));
+      
+      const lucroEstimadoPrefix = `${porcentagemLucro}% | `; 
+      htmlResultado += createResultLine('Lucro estimado:', formatarMoeda(lucroEstimado), lucroEstimadoPrefix); 
+
+      htmlResultado += createResultLine('Preço de venda sugerido:', formatarMoeda(precoSugerido), '', 'bold'); 
+      
+
+      if (!isNaN(precoVendaManual) && precoVendaManual > 0) {
+        const lucroManual = precoVendaManual - custoTotal;
+        htmlResultado += createResultLine('', '', '', 'separator'); 
+        htmlResultado += createResultLine(`Com preço de venda informado (${formatarMoeda(precoVendaManual)}):`, '', ''); 
+        htmlResultado += createResultLine('Lucro real:', formatarMoeda(lucroManual));
+      } else if (!isNaN(precoVendaManual) && precoVendaManual <=0) {
+        htmlResultado += createResultLine('Aviso:', "O preço de venda opcional informado é zero ou negativo e não será considerado.", '', 'warning');
+      }
+
+      resultadoDiv.innerHTML = htmlResultado;
+      resultadoDiv.classList.remove('hidden'); 
+    }
+
+    document.getElementById('calculatorForm').addEventListener('submit', function(event) {
+        event.preventDefault(); 
+        calcular(); 
+    });
+
+    document.getElementById('toggleConfig').addEventListener('click', function() {
+      document.getElementById('configSection').classList.toggle('hidden');
+    });
+  </script>
+</body>
+</html>
